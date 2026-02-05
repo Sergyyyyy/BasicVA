@@ -12,48 +12,10 @@ import pyttsx3
 
 
 
-# AI API capability
-
-client = Groq(api_key = creds.API_Key)
-
-summarize = "summarize in a sentence."
-
-userQuestion = str(input("-> "))
-
-completion = client.chat.completions.create(
-    model="meta-llama/llama-4-scout-17b-16e-instruct",
-    messages=[
-        {"role": "user", "content": f"{userQuestion} {summarize}"}
-    ],
-    stream=False
-)
-
-print(completion.choices[0].message.content)
-
-
-# Speech capability
-
-model = Model("Python/BasicVA/BasicVA/vosk-model-small-en-us-0.15")
-rec = KaldiRecognizer(model, 16000)
-
-def callback(indata, frames, time, status):
-    if status:
-        print(status)
-
-    if rec.AcceptWaveform(bytes(indata)):
-        result = json.loads(rec.Result())
-        print("You said:", result["text"])
 
 
 
-with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
-                       channels=1, callback=callback):
-    print("Listening...")
-    input()
-    
-    
-
-# Speak functionality
+# Comp Speak functionality
 
 engine = pyttsx3.init()
 
@@ -65,9 +27,60 @@ engine.setProperty("rate", 200)
 def speak(text):
     engine.say(text)
     engine.runAndWait()
+
+# AI API capability
+
+client = Groq(api_key = creds.API_Key)
+
+def artificialize(input):
+    summarize = "summarize in a sentence."
+
+    completion = client.chat.completions.create(
+        model="meta-llama/llama-4-scout-17b-16e-instruct",
+        messages=[
+            {"role": "user", "content": f"{input} {summarize}"}
+        ],
+        stream=False
+    )
+    print(completion.choices[0].message.content)
+    speak(completion.choices[0].message.content)
+
+
+
+# Speech capability
+yourVoiceText = ""
+
+
+model = Model("Python/BasicVA/BasicVA/vosk-model-small-en-us-0.15")
+rec = KaldiRecognizer(model, 16000)
+
+def callback(indata, _frames, _time, 
+             status):
+    global yourVoiceText
     
-speak("Hello World!")
+    if status:
+        print(status)
+
+    if rec.AcceptWaveform(bytes(indata)):
+        result = json.loads(rec.Result())
+        
+        yourVoiceText = result["text"]
+        print("You said:", yourVoiceText)
 
 
-# Integrated
 
+with sd.RawInputStream(samplerate=16000, blocksize=8000, dtype='int16',
+                       channels=1, callback=callback):
+    print("Listening...")
+    input()
+    
+if yourVoiceText:
+    artificialize(yourVoiceText)
+else:
+    speak("I didn't hear anything.")
+
+
+# Integrated Version
+
+callback()
+artificialize(yourVoiceText)
