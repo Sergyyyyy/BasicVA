@@ -5,7 +5,8 @@ Simple voice assistant that utilizes several python libraries such as pyttsx3 an
 1. Add a creds.py and reference it to your .gitignore.
 2. Add your free groq API key with the format 
     API_KEY = ""
-    Get your API KEY from this URL - https://console.groq.com/keys
+
+Get your API KEY from this URL - https://console.groq.com/keys
 
 # How to use the program?
 1. Speak your prompt carefully while it prints "Listening..."
